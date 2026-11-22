@@ -1,0 +1,24 @@
+rules:
+  - id: python-eval-usage
+    languages: [python]
+    severity: ERROR
+    message: Use of eval() can lead to arbitrary code execution.
+    pattern: eval(...)
+
+  - id: python-exec-usage
+    languages: [python]
+    severity: ERROR
+    message: Use of exec() can lead to arbitrary code execution.
+    pattern: exec(...)
+
+  - id: flask-debug-enabled
+    languages: [python]
+    severity: WARNING
+    message: Flask debug mode must not be enabled in production.
+    pattern: $APP.run(..., debug=True, ...)
+
+  - id: subprocess-shell-true
+    languages: [python]
+    severity: ERROR
+    message: subprocess call with shell=True is vulnerable to command injection.
+    pattern: subprocess.$FUNC(..., shell=True, ...)
