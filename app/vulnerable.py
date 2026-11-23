@@ -1,21 +1,26 @@
+import ast
 import hashlib
+import os
 import subprocess
 
-DB_PASSWORD = "SuperSecret123!"
-API_TOKEN = "sk-test-1234567890abcdef"
+
+def get_db_password():
+    return os.environ.get("DB_PASSWORD", "")
 
 
 def calculate(expression):
-    return eval(expression)
+    # Safe evaluation of literals only
+    return ast.literal_eval(expression)
 
 
 def run_command(user_input):
-    return subprocess.run("echo " + user_input, shell=True)
+    # No shell, arguments passed as a list
+    return subprocess.run(["echo", user_input], check=False)
 
 
-def weak_hash(password):
-    return hashlib.md5(password.encode()).hexdigest()
+def strong_hash(password):
+    return hashlib.sha256(password.encode()).hexdigest()
 
 
 def start(app):
-    app.run(host="0.0.0.0", debug=True)
+    app.run(host="127.0.0.1", debug=False)
