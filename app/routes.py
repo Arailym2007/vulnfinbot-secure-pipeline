@@ -2,10 +2,13 @@ import logging
 
 from flask import Blueprint, jsonify, request
 
+from app.guardrails import detect_injection, validate_output
+
 bp = Blueprint("main", __name__)
 logger = logging.getLogger(__name__)
 
 MAX_MESSAGE_LENGTH = 500
+REFUSAL = "I can only help with general personal finance questions."
 
 
 def generate_mock_response(message: str) -> str:
@@ -38,7 +41,13 @@ def chat():
 
     # Log only metadata, never the user's message itself
     logger.info("Chat request received, length=%d", len(message))
-    return jsonify({"response": generate_mock_response(message)}), 200
+
+    if detect_injection(message):
+        logger.warning("Possible prompt injection blocked")
+        return jsonify({"response": REFUSAL}), 200
+
+    reply = validate_output(generate_mock_response(message))
+    return jsonify({"response": reply}), 200
 
 
 @bp.app_errorhandler(404)
